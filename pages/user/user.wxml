@@ -1,0 +1,10 @@
+<view class="container">
+  <view class="form-wrap">
+      <text class="label">用户名</text>
+      <input value="{{user.username}}" bindinput="updateUsername" id="username" class="account-info-input"/>
+      <text class="label">新密码</text>
+      <input password bindinput="updatePassword" id="password" class="account-info-input"/>
+  </view>
+  <text wx:if="{{error}}" class="error">{{error}}</text>
+  <button class="submit" type="primary" disabled="{{!(username || password)}}" bindtap="save">更新</button>
+</view>

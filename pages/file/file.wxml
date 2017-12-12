@@ -1,0 +1,7 @@
+<!--pages/file/file.wxml-->
+<view class="container">
+  <text wx:if="{{error}}" class="error">{{error}}</text>
+  <button class="submit" type="primary" bindtap="choose">选择</button>
+  <text>filepath:{{filepath}}</text>
+  <button class="submit" type="primary" bindtap="saveFile">保存</button>
+</view>
