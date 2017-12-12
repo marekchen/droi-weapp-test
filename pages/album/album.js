@@ -30,7 +30,19 @@ Page({
     this.setData({ showActionsSheet: false, imageInAction: '' });
   },
 
-  onLoad() {
+  onShareAppMessage: function () {
+    if (this.previewMode){
+
+    }else{
+      return {
+        title: '自定义转发标题',
+        path: '/pages/album/album?id=1'
+      }
+    }
+  },
+
+  onLoad(options) {
+    console.log(options);
     this.renderAlbumList();
     this.getAlbumList().then((list) => {
       let photoList = [];
