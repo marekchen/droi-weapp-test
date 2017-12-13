@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/albumList/albumList",
     "pages/album/album",
     "pages/scroller/scroller",
     "pages/index/index",

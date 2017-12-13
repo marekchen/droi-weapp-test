@@ -1,0 +1,29 @@
+.album {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  height: 150rpx;
+}
+
+.image {
+  margin: 20rpx;
+  height: 110rpx;
+  width: 150rpx;
+}
+
+.album-info {
+  display: flex;
+  flex-direction: column;
+  height: 150rpx;
+  justify-content: center;
+}
+
+.album-title {
+  /* flex: 1; */
+  font-size: 18px;
+}
+
+.album-count {
+  /* flex: 1; */
+  font-size: 14px;
+}

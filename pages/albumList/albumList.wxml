@@ -1,0 +1,9 @@
+  <scroll-view scroll-y="true"> 
+   <view class="album" bindtap="chooseAlbum"> 
+    <image src="/images/camera.png" class="image" mode="aspectFit"></image>
+    <view class="album-info">
+      <text class="album-title">相册名称</text>
+      <text class="album-count">10张</text>
+    </view>
+  </view> 
+</scroll-view>

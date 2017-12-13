@@ -43,6 +43,9 @@ Page({
 
   onLoad(options) {
     console.log(options);
+    wx.setNavigationBarTitle({
+      title: '当前页面'
+    });
     this.renderAlbumList();
     this.getAlbumList().then((list) => {
       let photoList = [];

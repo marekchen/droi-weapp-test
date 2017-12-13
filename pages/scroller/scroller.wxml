@@ -1,13 +1,16 @@
-<view class="outer">
-  <view class="top">
-    <scroll-view class="scroll" scroll-top="{{scrollTop}}" scroll-into-view="{{theView}}" style="height:560px;" scroll-y="true" bindscroll="scrll" bindscrolltolower="loadMore">
-      <view class="block" wx:for="{{listLi}}" wx:for-item="item">
-        <text id="{{item}}">{{item}}</text>
-      </view>
-    </scroll-view>
+<view class="section">
+  <view class="section__title">flex-direction: row</view>
+  <view class="flex-wrp" style="flex-direction:row;">
+    <view class="flex-item bc_green">1</view>
+    <view class="flex-item bc_red">2</view>
+    <view class="flex-item bc_blue">3</view>
   </view>
-  <view class="setting">
-    <button vlaue="" bindtap="gotoView">the 10th goto view</button>
-    <button vlaue="" bindtap="goTop">scroll top</button>
+</view>
+<view class="section">
+  <view class="section__title">flex-direction: column</view>
+  <view class="flex-wrp" style="height: 300px;flex-direction:column;">
+    <view class="flex-item bc_green">1</view>
+    <view class="flex-item bc_red">2</view>
+    <view class="flex-item bc_blue">3</view>
   </view>
 </view>
