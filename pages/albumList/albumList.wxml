@@ -1,9 +1,24 @@
-  <scroll-view scroll-y="true"> 
-   <view class="album" bindtap="chooseAlbum"> 
+<button type="default" bindtap="showDialogBtn"> 增加相册 + </button>
+<scroll-view scroll-y="true">
+  <view bindtap="chooseAlbum" class="album" wx:for="{{albumList}}" wx:for-item="album" wx:key="album" data-name="{{album['name']}}" id="{{album['_Id']}}">
     <image src="/images/camera.png" class="image" mode="aspectFit"></image>
     <view class="album-info">
-      <text class="album-title">相册名称</text>
-      <text class="album-count">10张</text>
+      <text class="album-title">{{album.name}}</text>
+      <text class="album-amount">{{album.amount}}张</text>
     </view>
-  </view> 
+  </view>
 </scroll-view>
+
+<view class="modal-mask" bindtap="hideModal" catchtouchmove="preventTouchMove" wx:if="{{showModal}}"></view>
+<view class="modal-dialog" wx:if="{{showModal}}">
+  <view class="modal-title">输入相册名称</view>
+  <view class="modal-content">
+    <view class="modal-input">
+      <input placeholder-class="input-holder" type="text" maxlength="10" bindinput="inputChange" class="input" placeholder="请输入相册名称"></input>
+    </view>
+  </view>
+  <view class="modal-footer">
+    <view class="btn-cancel" bindtap="onCancel" data-status="cancel">取消</view>
+    <view class="btn-confirm" bindtap="onConfirm" data-status="confirm">确定</view>
+  </view>
+</view>

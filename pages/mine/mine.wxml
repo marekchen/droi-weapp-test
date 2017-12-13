@@ -1,0 +1,5 @@
+<!--pages/mine/mine.wxml-->
+<text>{{userId}}</text>
+
+<button wx:if="{{whichButton == 1}}" type="primary" size="default" bindtap="logout">登出</button>
+<button wx:if="{{whichButton == 2}}" type="primary" size="default" bindtap="toLogin">去登录</button>

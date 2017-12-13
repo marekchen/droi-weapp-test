@@ -1,8 +1,10 @@
 const { listToMatrix, always } = require('../../utils/util.js');
-const { DroiUser, DroiError, DroiFile, DroiObject, DroiQuery } = require('../../utils/droi-baas-weapp-min')
+const { DroiUser, DroiError, DroiFile, DroiObject, DroiQuery, DroiCondition } = require('../../utils/droi-baas-weapp-min');
 
 Page({
   data: {
+    albumId: '',
+
     // 相册列表数据
     albumList: [],
 
@@ -23,6 +25,8 @@ Page({
 
     // 当前预览索引
     previewIndex: 0,
+
+    lastestModifiedTime: '',
   },
 
   // 隐藏动作列表
@@ -31,49 +35,73 @@ Page({
   },
 
   onShareAppMessage: function () {
-    if (this.previewMode){
+    if (this.previewMode) {
 
-    }else{
+    } else {
       return {
-        title: '自定义转发标题',
-        path: '/pages/album/album?id=1'
+        title: `${this.data.albumName}`,
+        path: `/pages/album/album?id=${this.data.albumId}&name=${this.data.albumName}`
       }
     }
   },
 
+  onPullDownRefresh() {
+    this.getAlbumList();
+  },
+
   onLoad(options) {
-    console.log(options);
+    let albumId = options.id;
+    let albumName = options.name;
+    if (albumId == "") {
+      wx.showToast({
+        title: '相册不存在',
+      })
+    }
+    this.setData({ 'albumId': albumId });
+    this.setData({ 'albumName': albumName });
     wx.setNavigationBarTitle({
-      title: '当前页面'
+      title: albumName,
     });
     this.renderAlbumList();
-    this.getAlbumList().then((list) => {
-      let photoList = [];
-      list.forEach((value, index, array) => {
-        photoList.push(value.getValue('photo').getValue('_MongoDmd')['CDN']);
-      });
-      wx.hideLoading();
-      this.setData({ 'albumList': this.data.albumList.concat(photoList) });
-      this.renderAlbumList();
-    }).catch(error => {
-      let errorMessage = "发生错误：" + error;
-      wx.hideLoading();
-      wx.showToast({
-        title: "查询失败",
-        image: '../../images/camera.png'
-      });
-    });
+    this.getAlbumList();
   },
 
   // 获取相册列表
   getAlbumList() {
     wx.showLoading({
       title: '加载列表中…',
-      mask:true
+      mask: true
     });
-    //setTimeout(() => wx.hideLoading(), 1000);
-    let query = DroiQuery.create("Album");
-    return query.runQuery();
+    let that = this;
+    let cond = DroiCondition.eq("albumId", this.data.albumId)
+    if (this.data.lastestModifiedTime != "") {
+      cond = cond.and(DroiCondition.gt("_ModifiedTime", this.data.lastestModifiedTime));
+    }
+    let query = DroiQuery.create("Photo").where(cond);
+    query.runQuery().then((list) => {
+      let photoList = [];
+      list.forEach((value, index, array) => {
+        photoList.push(value.getValue('photo').getValue('_MongoDmd')['CDN']);
+        if (index == list.length - 1) {
+          that.setData({
+            lastestModifiedTime: value.modifiedTime
+          });
+        }
+      });
+      wx.hideLoading();
+      wx.stopPullDownRefresh();
+      this.setData({ 'albumList': this.data.albumList.concat(photoList) });
+      this.renderAlbumList();
+    }).catch(error => {
+      let errorMessage = "发生错误：" + error;
+      console.log(errorMessage);
+      wx.hideLoading();
+      wx.showToast({
+        title: "查询失败",
+        image: '../../images/camera.png'
+      });
+      wx.stopPullDownRefresh();
+    });;
   },
 
   // 渲染相册列表
@@ -81,15 +109,15 @@ Page({
     let layoutColumnSize = this.data.layoutColumnSize;
     let layoutList = [];
 
-    if (this.data.albumList.length) {
-      layoutList = listToMatrix([0].concat(this.data.albumList), layoutColumnSize);
-      
-      let lastRow = layoutList[layoutList.length - 1];
-      if (lastRow.length < layoutColumnSize) {
-        let supplement = Array(layoutColumnSize - lastRow.length).fill(0);
-        lastRow.push(...supplement);
-      }
+    //if (this.data.albumList.length) {
+    layoutList = listToMatrix([0].concat(this.data.albumList), layoutColumnSize);
+
+    let lastRow = layoutList[layoutList.length - 1];
+    if (lastRow.length < layoutColumnSize) {
+      let supplement = Array(layoutColumnSize - lastRow.length).fill(0);
+      lastRow.push(...supplement);
     }
+    //}
     console.log(layoutList);
     this.setData({ layoutList });
   },
@@ -109,12 +137,13 @@ Page({
         var tempFilePaths = res.tempFilePaths;
         let droifile = DroiFile.createFile(tempFilePaths[0]);
         droifile.then(file => {
-          let obj1 = DroiObject.createObject("Album");
+          let obj1 = DroiObject.createObject("Photo");
           obj1.setValue('photo', file);
+          obj1.setValue('albumId', that.data.albumId);
           obj1.save().then(() => {
             console.log('success');
             file.getUris(false).then((urls) => {
-              that.hideLoading();
+              wx.hideLoading();
               let albumList = this.data.albumList;
               albumList.unshift(urls);
               that.setData({ albumList });
@@ -126,7 +155,7 @@ Page({
             })
           }).catch(error => {
             let errorMessage = "发生错误：" + error;
-            that.hideLoading();
+            wx.hideLoading();
             wx.showToast({
               title: "图片上传失败",
               image: '../../images/camera.png'
@@ -167,8 +196,8 @@ Page({
     });
     console.log('download_image_url', this.data.imageInAction);
     let imageUrl = this.data.imageInAction;
-    if (imageUrl.startsWith('http:')){
-      imageUrl = imageUrl.replace(/http/,'https');
+    if (imageUrl.startsWith('http:')) {
+      imageUrl = imageUrl.replace(/http/, 'https');
     }
     wx.downloadFile({
       url: imageUrl,
@@ -179,7 +208,7 @@ Page({
           success: (resp) => {
             wx.showToast({
               title: '图片保存成功',
-              icon:'success'
+              icon: 'success'
             });
           },
 
@@ -206,7 +235,7 @@ Page({
   deleteImage() {
     let imageUrl = this.data.imageInAction;
     let filepath = '/' + imageUrl.split('/').slice(3).join('/');
-  
+
     wx.showLoading({
       title: '正在删除图片…',
       mask: true

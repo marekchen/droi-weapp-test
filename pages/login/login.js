@@ -1,4 +1,3 @@
-// pages/user.js
 const { DroiUser, DroiError } = require('../../utils/droi-baas-weapp-min')
 
 Page({
@@ -17,57 +16,11 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    wx.setNavigationBarTitle({
+      title: '登录 | 注册'
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  },
   updateUsername: function ({
     detail: {
       value
@@ -86,7 +39,38 @@ Page({
       password: value
     });
   },
-  save: function () {
+  login: function () {
+    this.setData({
+      error: null,
+    });
+    const { username, password } = this.data;
+    wx.showLoading({
+      title: '登录中...',
+    })
+    DroiUser.login(username, password).then(() => {
+      console.log('success');
+      wx.hideLoading();
+      wx.showToast({
+        title: '登录成功',
+        icon: 'success',
+      });
+      wx.navigateBack({
+        delta: 1
+      });
+    }).catch(error => {
+      wx.hideLoading();
+      let errorMessage;
+      if (error.code == DroiError.USER_ALREADY_EXISTS) {
+        errorMessage = "用户已被注册";
+      } else {
+        errorMessage = "发生错误：" + error;
+      }
+      this.setData({
+        error: errorMessage,
+      });
+    });
+  },
+  signup: function () {
     this.setData({
       error: null,
     });
@@ -98,13 +82,21 @@ Page({
     if (password) {
       user.Password = password;
     }
+    wx.showLoading({
+      title: '注册中...',
+    })
     user.signup().then(() => {
+      wx.hideLoading();
       console.log('success');
       wx.showToast({
         title: '注册成功',
         icon: 'success',
       });
+      wx.navigateBack({
+        delta: 1
+      });
     }).catch(error => {
+      wx.hideLoading();
       let errorMessage;
       if (error.code == DroiError.USER_ALREADY_EXISTS) {
         errorMessage = "用户已被注册";
